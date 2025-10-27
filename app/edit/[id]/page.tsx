@@ -102,13 +102,16 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
 
       <div className="mb-4">
         <label className="block mb-2 text-gray-700">Event:</label>
-        <input
-          type="text"
+        <select
           value={data.event}
           onChange={(e) => setData({ ...data, event: e.target.value })}
-          className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none text-gray-700"
+          className="w-full p-2 border rounded focus:border-blue-500 focus:outline-none text-gray-700 bg-white"
           required
-        />
+        >
+          <option value="" disabled>Select an event</option>
+          <option value="Construction">Construction</option>
+          <option value="Blocked Road">Blocked Road</option>
+        </select>
       </div>
 
       <div className="mb-4">
