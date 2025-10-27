@@ -7,6 +7,7 @@ export async function GET() {
     const result = await client.query(`
       WITH RankedData AS (
         SELECT 
+          id,
           device_id,
           lat as latitude,
           lon as longitude,
@@ -15,6 +16,7 @@ export async function GET() {
         FROM iot_data
       )
       SELECT 
+        id,
         device_id,
         CAST(latitude AS FLOAT) as latitude,
         CAST(longitude AS FLOAT) as longitude,
