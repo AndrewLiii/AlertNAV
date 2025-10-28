@@ -27,7 +27,8 @@ export default function LoginPage() {
 
       if (response.ok) {
         // Redirect to home page after successful login
-        router.push('/');
+        // Use window.location for full page reload to ensure cookie is set
+        window.location.href = '/';
       } else {
         setError(data.error || 'Failed to login');
       }

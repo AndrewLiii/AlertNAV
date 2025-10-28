@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       // Set cookie with email for session management
       response.cookies.set('user_email', user.email, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Set to true once HTTPS is configured on ALB
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 7 // 7 days
       });

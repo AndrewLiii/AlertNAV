@@ -1,0 +1,39 @@
+{
+  "family": "alertnav-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::682684724219:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::682684724219:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "alertnav",
+      "image": "682684724219.dkr.ecr.us-east-1.amazonaws.com/alertnav:latest",
+      "portMappings": [
+        { "containerPort": 3000, "hostPort": 3000, "protocol": "tcp" }
+      ],
+      "essential": true,
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "HOSTNAME", "value": "0.0.0.0" },
+        { "name": "PORT", "value": "3000" }
+      ],
+      "secrets": [
+        { "name": "POSTGRES_HOST", "valueFrom": "arn:aws:ssm:us-east-1:682684724219:parameter/alertnav/POSTGRES_HOST" },
+        { "name": "POSTGRES_USER", "valueFrom": "arn:aws:ssm:us-east-1:682684724219:parameter/alertnav/POSTGRES_USER" },
+        { "name": "POSTGRES_PASSWORD", "valueFrom": "arn:aws:ssm:us-east-1:682684724219:parameter/alertnav/POSTGRES_PASSWORD" },
+        { "name": "POSTGRES_DATABASE", "valueFrom": "arn:aws:ssm:us-east-1:682684724219:parameter/alertnav/POSTGRES_DATABASE" },
+        { "name": "POSTGRES_PORT", "valueFrom": "arn:aws:ssm:us-east-1:682684724219:parameter/alertnav/POSTGRES_PORT" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/alertnav",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

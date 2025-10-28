@@ -5,9 +5,10 @@ export default function proxy(request: NextRequest) {
   const userEmail = request.cookies.get('user_email')?.value;
   const isLoginPage = request.nextUrl.pathname === '/login';
   const isAuthAPI = request.nextUrl.pathname.startsWith('/api/auth');
+  const isHealthCheck = request.nextUrl.pathname.startsWith('/api/health');
 
   // If user is not logged in and not on login page or auth API, redirect to login
-  if (!userEmail && !isLoginPage && !isAuthAPI) {
+  if (!userEmail && !isLoginPage && !isAuthAPI && !isHealthCheck) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

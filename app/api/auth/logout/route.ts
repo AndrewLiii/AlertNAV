@@ -6,7 +6,7 @@ export async function POST() {
   // Clear the session cookie
   response.cookies.set('user_email', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to true once HTTPS is configured on ALB
     sameSite: 'lax',
     maxAge: 0
   });
