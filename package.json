@@ -6,10 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate": "tsx migrate.ts"
   },
   "dependencies": {
     "@types/pg": "^8.15.5",
+    "dotenv": "^17.2.3",
     "leaflet": "^1.9.4",
     "next": "16.0.0",
     "pg": "^8.16.3",
@@ -27,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.0",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

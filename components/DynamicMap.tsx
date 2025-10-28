@@ -1,5 +1,4 @@
-// components/DynamicMap.tsx
-'use client'; // <-- This is the most important line!
+'use client'; 
 
 import { useMemo } from 'react';
 import dynamic from 'next/dynamic';

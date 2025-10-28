@@ -1,30 +1,41 @@
-// components/MapComponent.tsx
 'use client';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import Link from 'next/link';
 import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-// --- Icon Fix ---
-// Make sure you have a file named 'pin.png' in your /public folder
-const defaultIcon = L.icon({
-    iconUrl: '/pin.png', 
+// --- Custom Icons based on event type ---
+const createIcon = (iconUrl: string) => L.icon({
+    iconUrl,
     iconSize: [41, 41],
-    iconAnchor: [20, 41],   // Points the icon tip to the correct map location
-    popupAnchor: [1, -34]    // Positions the popup relative to the icon
+    iconAnchor: [20, 41],
+    popupAnchor: [1, -34]
 });
 
-L.Marker.prototype.options.icon = defaultIcon;
-// --- End Icon Fix ---
+const icons = {
+    'Blocked Road': createIcon('/road-barrier.png'),
+    'Construction': createIcon('/construction.png'),
+    'Stop Sign': createIcon('/stop.png'),
+    default: createIcon('/pin.png')
+};
+
+// Helper function to get the correct icon based on event
+const getIconForEvent = (event: string): L.Icon => {
+    return icons[event as keyof typeof icons] || icons.default;
+};
+// --- End Custom Icons ---
 
 
 interface DeviceData {
+    id: number;
     device_id: string;
     latitude: number;
     longitude: number;
+    event: string;
     timestamp: string;
 }
 
@@ -34,12 +45,36 @@ interface MapComponentProps {
 }
 
 const MapComponent = ({ center, zoom = 13 }: MapComponentProps) => {
-    const { data, error } = useSWR<{ data: DeviceData[] }>("/api/data", fetcher, { 
+    const { data, error, isLoading } = useSWR<{ data: DeviceData[] }>("/api/data", fetcher, { 
         refreshInterval: 5000,
         onSuccess: (data) => {
             console.log('Device locations:', data);
         }
     });
+
+    // Show loading state while fetching data
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-full bg-gray-100">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                    <p className="text-gray-700">Loading latest locations...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show error state if fetch failed
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-full bg-gray-100">
+                <div className="text-center text-red-600">
+                    <p className="font-bold">Error loading data</p>
+                    <p className="text-sm">{error.message}</p>
+                </div>
+            </div>
+        );
+    }
 
     // Calculate the center based on the first device, or use provided center as fallback
     const mapCenter = data?.data?.[0] 
@@ -65,18 +100,24 @@ const MapComponent = ({ center, zoom = 13 }: MapComponentProps) => {
                 <Marker 
                     key={device.device_id}
                     position={[device.latitude, device.longitude] as [number, number]}
+                    icon={getIconForEvent(device.event)}
                 >
                     <Popup>
                         <div className="font-sans">
                             <h3 className="font-bold mb-2">Device: {device.device_id}</h3>
+                            <p className="text-blue-600 font-semibold">Event: {device.event}</p>
                             <p>Latitude: {device.latitude.toFixed(6)}</p>
                             <p>Longitude: {device.longitude.toFixed(6)}</p>
                             <p className="text-sm text-gray-600">
-                                Last updated: {new Date(device.timestamp).toLocaleString()}
+                                Last updated: {new Date(parseInt(device.timestamp) * 1000).toLocaleString()}
                             </p>
-                            <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            <Link
+                                href={`/edit/${device.id}`}
+                                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-block no-underline"
+                                style={{ color: 'white' }}
+                            >
                                 Edit
-                            </button>
+                            </Link>
                         </div>
                     </Popup>
                 </Marker>
