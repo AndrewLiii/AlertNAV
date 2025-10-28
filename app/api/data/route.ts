@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
           device_id,
           lat as latitude,
           lon as longitude,
+          event,
           timestamp,
           user_email,
           ROW_NUMBER() OVER (PARTITION BY device_id ORDER BY timestamp DESC) as rn
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
         device_id,
         CAST(latitude AS FLOAT) as latitude,
         CAST(longitude AS FLOAT) as longitude,
+        event,
         timestamp
       FROM RankedData 
       WHERE rn = 1 

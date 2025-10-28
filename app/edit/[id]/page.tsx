@@ -111,6 +111,7 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
           <option value="" disabled>Select an event</option>
           <option value="Construction">Construction</option>
           <option value="Blocked Road">Blocked Road</option>
+          <option value="Stop Sign">Stop Sign</option>
         </select>
       </div>
 

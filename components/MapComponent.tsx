@@ -8,17 +8,26 @@ import useSWR from "swr";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-// --- Icon Fix ---
-// Make sure you have a file named 'pin.png' in your /public folder
-const defaultIcon = L.icon({
-    iconUrl: '/pin.png', 
+// --- Custom Icons based on event type ---
+const createIcon = (iconUrl: string) => L.icon({
+    iconUrl,
     iconSize: [41, 41],
-    iconAnchor: [20, 41],   // Points the icon tip to the correct map location
-    popupAnchor: [1, -34]    // Positions the popup relative to the icon
+    iconAnchor: [20, 41],
+    popupAnchor: [1, -34]
 });
 
-L.Marker.prototype.options.icon = defaultIcon;
-// --- End Icon Fix ---
+const icons = {
+    'Blocked Road': createIcon('/road-barrier.png'),
+    'Construction': createIcon('/construction.png'),
+    'Stop Sign': createIcon('/stop.png'),
+    default: createIcon('/pin.png')
+};
+
+// Helper function to get the correct icon based on event
+const getIconForEvent = (event: string): L.Icon => {
+    return icons[event as keyof typeof icons] || icons.default;
+};
+// --- End Custom Icons ---
 
 
 interface DeviceData {
@@ -26,6 +35,7 @@ interface DeviceData {
     device_id: string;
     latitude: number;
     longitude: number;
+    event: string;
     timestamp: string;
 }
 
@@ -90,18 +100,21 @@ const MapComponent = ({ center, zoom = 13 }: MapComponentProps) => {
                 <Marker 
                     key={device.device_id}
                     position={[device.latitude, device.longitude] as [number, number]}
+                    icon={getIconForEvent(device.event)}
                 >
                     <Popup>
                         <div className="font-sans">
                             <h3 className="font-bold mb-2">Device: {device.device_id}</h3>
+                            <p className="text-blue-600 font-semibold">Event: {device.event}</p>
                             <p>Latitude: {device.latitude.toFixed(6)}</p>
                             <p>Longitude: {device.longitude.toFixed(6)}</p>
                             <p className="text-sm text-gray-600">
-                                Last updated: {new Date(device.timestamp).toLocaleString()}
+                                Last updated: {new Date(parseInt(device.timestamp) * 1000).toLocaleString()}
                             </p>
                             <Link
                                 href={`/edit/${device.id}`}
-                                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-block"
+                                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-block no-underline"
+                                style={{ color: 'white' }}
                             >
                                 Edit
                             </Link>
